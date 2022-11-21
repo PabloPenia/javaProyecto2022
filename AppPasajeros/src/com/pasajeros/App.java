@@ -16,12 +16,13 @@ public class App {
 	private String[] lineas = new String[50];
 	private String[] paradas = new String[30];
 
+
 	private Scanner input = new Scanner(System.in);
 	private String d = "@"; // delimitador
 	private String validCi = "^[1-9]\\d{7}$";
 	private String validName = "^[a-zA-Z ]{5,20}$"; // TODO: mejorar regexp.
 	private String validTel = "^[0-9]\\d{8}$"; // solo acepta celular o telefonos sin guiones
-	private String validCode = "^[A-Z0-9]{9}$";
+	private String validCode = "^[A-Z0-9]{10}$";
 
 	public static void main(String[] args) {
 		App app = new App();
@@ -168,7 +169,7 @@ public class App {
 		isValidKm = validDecimal(km);
 
 		if (!isValidKm) {
-			System.out.println("El dato ingresado es incorrecto intentelo nuevamente.");
+			System.out.printf(style("El dato ingresado es incorrecto intentelo nuevamente.", "error"));
 			menuConexion();
 		}
 
@@ -220,29 +221,35 @@ public class App {
 			idx += 3;
 		}
 		
+		if(!existeConexion) {
+			System.out.printf(style("%nERROR: No existe la conexion.%n", "error"));
+			menuConexion();
+		}
 		
-		System.out.printf("Ingrese el codigo de la linea. (10 digitos letras y numeros)%n");
+		System.out.printf("Ingrese el codigo de la linea. (10 digitos letras y numeros).%n");
 		linea = input.nextLine();
 		linea = linea.toUpperCase();
 		// validar linea
-//		Boolean isValidLinea = linea.matches(validCode); No funciona
+		Boolean isValidLinea = linea.matches(validCode);
 		
-//		if(!isValidLinea) {
-//			System.out.printf(style("%nEl codigo ingresado no es valido.%n", "error"));
-//			System.out.println(linea);
-//			System.out.println(isValidLinea);
-//			menuConexion();
-//		}
+		if(!isValidLinea) {
+			System.out.printf(style("%nEl codigo ingresado no es valido.%n", "error"));
+			menuConexion();
+		}
 		
-		if (lineas[0] != null) {
 			for (int i = 0; i < lineas.length; i++) {
-			String[] registro = lineas[i].split(d);
-			if (registro[2].equals(linea)) {
-				existeLinea = true;
-			}
-		}
+				if (lineas[i] != null) {
+					String[] registro = lineas[i].split(d);
+					if (registro[2].equals(linea)) {
+						existeLinea = true;
+					}
+				}			
 		}
 		
+			if(existeLinea) {
+				System.out.printf(style("%nLa Linea ya existe en el sistema.%n", "error"));
+				menuConexion();
+			}
 		
 		System.out.println("Ingrese el tiempo de viaje.%n");
 		minutos = input.nextLine();
@@ -294,12 +301,13 @@ public class App {
 	}
 
 	public Boolean existeParada(String code) {
-		for (int i = 0; i < paradas.length - 1; i += 2) {
+		if(paradas[0] != null) {
+			for (int i = 0; i < paradas.length - 1; i += 2) {
 			if (paradas[i].equals(code)) {
 				return true;
 			}
 		}
-
+		}
 		return false;
 	}
 
@@ -309,7 +317,9 @@ public class App {
 		} else {
 			System.out.printf(style("Lista de paradas registradas:%n", "success"));
 			for (int i = 0; i < paradas.length; i += 2) {
-				System.out.printf(style("ID: ", "b") + paradas[i] + style(" Parada: ", "b") + paradas[i + 1] + "%n");
+				if(paradas[i] != null) {
+					System.out.printf(style("ID: ", "b") + paradas[i] + style(" Parada: ", "b") + paradas[i + 1] + "%n");
+				}				
 			}
 		}
 		menuParadas();
@@ -539,7 +549,7 @@ public class App {
 		}
 		// TELEFONO
 		System.out.println("Ingresar el telefono:");
-		telefono = input.next();
+		telefono = input.nextLine();
 		Boolean isValidTel = telefono.matches(validTel);
 		if (!isValidTel) {
 			System.out.println(style("ERROR: debe ingresar un número de telefono válido.", "error"));
